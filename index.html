@@ -11,6 +11,7 @@
         background-color: #f0f0f0;
         margin: 0;
         padding: 20px;
+        color: #333; /* Default text color */
     }
     h1 {
         color: #333;
@@ -38,6 +39,7 @@
         background-color: #f0f0f0;
         cursor: pointer;
         transition: background-color 0.3s ease;
+        position: relative;
     }
     .cell:hover {
         background-color: #ccc;
@@ -48,18 +50,67 @@
     .player2 {
         color: #d32f2f;
     }
-    .copyright {
-        margin-top: 20px;
-        font-size: 14px;
-        color: #777;
+    .circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        position: absolute;
+        top: 5px;
+        left: 5px;
+    }
+    .circle-yellow {
+        background-color: yellow;
+    }
+    .circle-red {
+        background-color: red;
+    }
+    #toggleButton {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 10px 20px;
+        background-color: #2196F3;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    #toggleButton:hover {
+        background-color: #0b7dda;
+    }
+    #toggleButton:active {
+        background-color: #0b5c9d;
+    }
+    .dark-mode body {
+        background-color: #000;
+        color: #fff;
+    }
+    .dark-mode .cell {
+        background-color: #666;
+    }
+    .dark-mode .circle-yellow {
+        background-color: #ff0;
+    }
+    .dark-mode .circle-red {
+        background-color: #f00;
+    }
+    .dark-mode .board {
+        background-color: #1976d2;
+        border-color: #fff;
+    }
+    .dark-mode .copyright,
+    .dark-mode h1 {
+        color: #fff;
     }
 </style>
 </head>
 <body>
 <h1>Connect Four</h1>
+<button id="toggleButton" onclick="toggleDarkMode()">Toggle Dark Mode</button>
 <div class="board" id="board"></div>
 <div class="copyright">
-    <p>&copy; 2024 Teknik AB - Version 1.0 (Beta)</p>
+    <p>&copy; 2024 Teknik AB - Version 1.5 (Beta)</p>
 </div>
 <script>
     const ROWS = 6;
@@ -160,10 +211,14 @@
         board.forEach((row, i) => {
             row.forEach((cell, j) => {
                 const cellElement = document.querySelector(`.cell[data-row="${i}"][data-col="${j}"]`);
+                cellElement.innerHTML = ""; // Clear previous content
                 if (cell === 0) {
-                    cellElement.textContent = "";
+                    // No disc in this cell
                 } else {
-                    cellElement.textContent = cell === 1 ? "X" : "O";
+                    const circleElement = document.createElement("div");
+                    circleElement.classList.add("circle");
+                    circleElement.classList.add(cell === 1 ? "circle-yellow" : "circle-red");
+                    cellElement.appendChild(circleElement);
                 }
                 cellElement.classList.remove("player1", "player2");
                 if (cell === 1) {
@@ -173,6 +228,19 @@
                 }
             });
         });
+    }
+
+    function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+        if (document.body.classList.contains("dark-mode")) {
+            document.body.style.backgroundColor = "#000";
+            document.querySelector('.copyright').style.color = '#fff';
+            document.querySelector('h1').style.color = '#fff';
+        } else {
+            document.body.style.backgroundColor = "#f0f0f0";
+            document.querySelector('.copyright').style.color = '#333';
+            document.querySelector('h1').style.color = '#333';
+        }
     }
 </script>
 </body>
