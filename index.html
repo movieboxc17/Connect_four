@@ -1,247 +1,427 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Connect Four</title>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        background-color: #f0f0f0;
-        margin: 0;
-        padding: 20px;
-        color: #333; /* Default text color */
-    }
-    h1 {
-        color: #333;
-    }
-    .board {
-        display: inline-block;
-        border: 6px solid #333;
-        border-radius: 10px;
-        background-color: #1976d2;
-        padding: 10px;
-    }
-    .row {
-        display: flex;
-    }
-    .cell {
-        width: 50px;
-        height: 50px;
-        border: 3px solid #333;
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 24px;
-        color: #fff;
-        background-color: #f0f0f0;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        position: relative;
-    }
-    .cell:hover {
-        background-color: #ccc;
-    }
-    .player1 {
-        color: #ff6f00;
-    }
-    .player2 {
-        color: #d32f2f;
-    }
-    .circle {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        position: absolute;
-        top: 5px;
-        left: 5px;
-    }
-    .circle-yellow {
-        background-color: yellow;
-    }
-    .circle-red {
-        background-color: red;
-    }
-    #toggleButton {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        padding: 10px 20px;
-        background-color: #2196F3;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-    #toggleButton:hover {
-        background-color: #0b7dda;
-    }
-    #toggleButton:active {
-        background-color: #0b5c9d;
-    }
-    .dark-mode body {
-        background-color: #000;
-        color: #fff;
-    }
-    .dark-mode .cell {
-        background-color: #666;
-    }
-    .dark-mode .circle-yellow {
-        background-color: #ff0;
-    }
-    .dark-mode .circle-red {
-        background-color: #f00;
-    }
-    .dark-mode .board {
-        background-color: #1976d2;
-        border-color: #fff;
-    }
-    .dark-mode .copyright,
-    .dark-mode h1 {
-        color: #fff;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Four Deluxe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #1a237e, #0d47a1);
+            margin: 0;
+            padding: 20px;
+            color: #fff;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 3em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: titlePulse 2s infinite;
+            margin-bottom: 30px;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin: 20px 0;
+            font-size: 1.5em;
+        }
+
+        .player1-score { color: #ffd700; }
+        .player2-score { color: #ff4444; }
+
+        .timer {
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 15px;
+            font-size: 1.2em;
+        }
+
+        .board {
+            display: inline-block;
+            border: 6px solid #fff;
+            border-radius: 15px;
+            background-color: #1976d2;
+            padding: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            transform: perspective(1000px) rotateX(5deg);
+            transition: transform 0.3s ease;
+        }
+
+        .board:hover {
+            transform: perspective(1000px) rotateX(8deg) scale(1.02);
+        }
+
+        .row {
+            display: flex;
+            gap: 5px;
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            border: 3px solid #fff;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            margin: 2px;
+            backdrop-filter: blur(5px);
+        }
+
+        .cell:hover {
+            background-color: rgba(255,255,255,0.2);
+            transform: scale(1.1);
+        }
+
+        .cell.highlight {
+            background-color: rgba(255,255,255,0.3);
+        }
+
+        .circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            animation: dropIn 0.5s ease-out;
+        }
+
+        .particle {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: explode 1s ease-out forwards;
+        }
+
+        @keyframes titlePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes dropIn {
+            0% { transform: translateY(-300px); }
+            70% { transform: translateY(10px); }
+            100% { transform: translateY(0); }
+        }
+
+        @keyframes explode {
+            0% {
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(calc(cos(var(--angle)) * 100px), 
+                               calc(sin(var(--angle)) * 100px));
+                opacity: 0;
+            }
+        }
+
+        .circle-yellow {
+            background: radial-gradient(circle at 30% 30%, #ffd700, #ffa000);
+            box-shadow: 0 0 10px rgba(255,215,0,0.5);
+        }
+
+        .circle-red {
+            background: radial-gradient(circle at 30% 30%, #ff4444, #cc0000);
+            box-shadow: 0 0 10px rgba(255,0,0,0.5);
+        }
+
+        #toggleButton {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #2196F3, #1565C0);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        #toggleButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.2);
+        }
+
+        .player-turn {
+            margin: 20px 0;
+            font-size: 1.5em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .current-yellow { color: #ffd700; }
+        .current-red { color: #ff4444; }
+
+        .copyright {
+            position: fixed;
+            bottom: 20px;
+            width: 100%;
+            left: 0;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+    </style>
 </head>
 <body>
-<h1>Connect Four</h1>
-<button id="toggleButton" onclick="toggleDarkMode()">Toggle Dark Mode</button>
-<div class="board" id="board"></div>
-<div class="copyright">
-    <p>&copy; 2024 Teknik AB - Version 1.5 (Beta)</p>
-</div>
-<script>
-    const ROWS = 6;
-    const COLS = 7;
-    let currentPlayer = 1;
-    let board = [];
-
-    const boardElement = document.getElementById("board");
+    <button id="toggleButton" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+    <h1>Connect Four Deluxe</h1>
     
-    // Initialize the board
-    for (let i = 0; i < ROWS; i++) {
-        const rowElement = document.createElement("div");
-        rowElement.classList.add("row");
-        board.push([]);
-        for (let j = 0; j < COLS; j++) {
-            const cellElement = document.createElement("div");
-            cellElement.classList.add("cell");
-            cellElement.dataset.row = i;
-            cellElement.dataset.col = j;
-            cellElement.addEventListener("click", () => dropDisc(j));
-            rowElement.appendChild(cellElement);
-            board[i].push(0);
-        }
-        boardElement.appendChild(rowElement);
-    }
+    <div class="score-board">
+        <div class="score player1-score">Player 1: <span id="score1">0</span></div>
+        <div class="timer" id="timer">30</div>
+        <div class="score player2-score">Player 2: <span id="score2">0</span></div>
+    </div>
+    
+    <div class="player-turn" id="playerTurn">Player 1's Turn</div>
+    <div class="board" id="board"></div>
+    <div class="copyright">
+        <p>&copy; 2024 Teknik AB - Version 2.0</p>
+    </div>
 
-    function dropDisc(col) {
-        for (let i = ROWS - 1; i >= 0; i--) {
-            if (board[i][col] === 0) {
-                board[i][col] = currentPlayer;
-                render();
-                if (checkWin(i, col)) {
-                    alert(`Player ${currentPlayer} wins!`);
-                    reset();
+    <script>
+        const ROWS = 6;
+        const COLS = 7;
+        let currentPlayer = 1;
+        let board = [];
+        let scores = {
+            player1: 0,
+            player2: 0
+        };
+        let gameTimer;
+        let timeLeft = 30;
+
+        const sounds = {
+            drop: new Audio('data:audio/wav;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAADAAAGhgBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVWqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqr///////////////////////////////////////////8AAAA8TEFNRTMuOTlyBK8AAAAAAAAAABSAJAOkQgAAgAAABobXqlfbAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//sQxAADwAABpAAAACAAADSAAAAETEFNRTMuOTkuNVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVU='),
+            win: new Audio('data:audio/wav;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAADAAAGhgBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVWqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqr///////////////////////////////////////////8AAAA8TEFNRTMuOTlyBK8AAAAAAAAAABSAJAOkQgAAgAAABobXqlfbAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//sQxAADwAABpAAAACAAADSAAAAETEFNRTMuOTkuNVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVU=')
+        };
+
+        const boardElement = document.getElementById("board");
+        const playerTurnElement = document.getElementById("playerTurn");
+
+        function initializeBoard() {
+            board = [];
+            for (let i = 0; i < ROWS; i++) {
+                const rowElement = document.createElement("div");
+                rowElement.classList.add("row");
+                board.push([]);
+                for (let j = 0; j < COLS; j++) {
+                    const cellElement = document.createElement("div");
+                    cellElement.classList.add("cell");
+                    cellElement.dataset.row = i;
+                    cellElement.dataset.col = j;
+                    cellElement.addEventListener("click", () => dropDisc(j));
+                    rowElement.appendChild(cellElement);
+                    board[i].push(0);
+                }
+                boardElement.appendChild(rowElement);
+            }
+        }
+
+        function updatePlayerTurn() {
+            playerTurnElement.textContent = `Player ${currentPlayer}'s Turn`;
+            playerTurnElement.className = 'player-turn';
+            playerTurnElement.classList.add(currentPlayer === 1 ? 'current-yellow' : 'current-red');
+        }
+
+        function createParticles(x, y) {
+            for(let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.backgroundColor = currentPlayer === 1 ? '#ffd700' : '#ff4444';
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+                particle.style.setProperty('--angle', `${Math.random() * 360}deg`);
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 1000);
+            }
+        }
+
+        function dropDisc(col) {
+            for (let i = ROWS - 1; i >= 0; i--) {
+                if (board[i][col] === 0) {
+                    board[i][col] = currentPlayer;
+                    sounds.drop.play();
+                    render();
+                    
+                    const cell = document.querySelector(`.cell[data-row="${i}"][data-col="${col}"]`);
+                    const rect = cell.getBoundingClientRect();
+                    createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
+                    
+                    if (checkWin(i, col)) {
+                        setTimeout(() => {
+                            sounds.win.play();
+                            scores[`player${currentPlayer}`]++;
+                            document.getElementById(`score${currentPlayer}`).textContent = 
+                                scores[`player${currentPlayer}`];
+                            alert(`Player ${currentPlayer} wins!`);
+                            reset();
+                        }, 500);
+                        return;
+                    }
+                    
+                    if (checkDraw()) {
+                        setTimeout(() => {
+                            alert("It's a draw!");
+                            reset();
+                        }, 500);
+                        return;
+                    }
+                    
+                    currentPlayer = currentPlayer === 1 ? 2 : 1;
+                    updatePlayerTurn();
+                    startTimer();
                     return;
                 }
-                if (checkDraw()) {
-                    alert("It's a draw!");
-                    reset();
-                    return;
-                }
-                currentPlayer = currentPlayer === 1 ? 2 : 1;
-                return;
-            }
-        }
-    }
-
-    function checkWin(row, col) {
-        const directions = [
-            [1, 0], [0, 1], [1, 1], [-1, 1] // vertical, horizontal, diagonal right, diagonal left
-        ];
-
-        for (let [dx, dy] of directions) {
-            let count = 1;
-            for (let direction of [-1, 1]) {
-                let x = col + dx * direction;
-                let y = row + dy * direction;
-                while (x >= 0 && x < COLS && y >= 0 && y < ROWS && board[y][x] === currentPlayer) {
-                    count++;
-                    x += dx * direction;
-                    y += dy * direction;
-                }
-            }
-            if (count >= 4) {
-                return true;
             }
         }
 
-        return false;
-    }
+        function checkWin(row, col) {
+            const directions = [
+                [1, 0], [0, 1], [1, 1], [-1, 1]
+            ];
 
-    function checkDraw() {
-        return board.every(row => row.every(cell => cell !== 0));
-    }
+            for (let [dx, dy] of directions) {
+                let count = 1;
+                let winningCells = [[row, col]];
 
-    function reset() {
-        board = [];
-        currentPlayer = 1;
-        boardElement.innerHTML = "";
-        for (let i = 0; i < ROWS; i++) {
-            const rowElement = document.createElement("div");
-            rowElement.classList.add("row");
-            board.push([]);
-            for (let j = 0; j < COLS; j++) {
-                const cellElement = document.createElement("div");
-                cellElement.classList.add("cell");
-                cellElement.dataset.row = i;
-                cellElement.dataset.col = j;
-                cellElement.addEventListener("click", () => dropDisc(j));
-                rowElement.appendChild(cellElement);
-                board[i].push(0);
+                for (let direction of [-1, 1]) {
+                    let x = col + dx * direction;
+                    let y = row + dy * direction;
+                    while (x >= 0 && x < COLS && y >= 0 && y < ROWS && board[y][x] === currentPlayer) {
+                        count++;
+                        winningCells.push([y, x]);
+                        x += dx * direction;
+                        y += dy * direction;
+                    }
+                }
+                
+                if (count >= 4) {
+                    showWinningCells(winningCells);
+                    return true;
+                }
             }
-            boardElement.appendChild(rowElement);
+            return false;
         }
-    }
 
-    function render() {
-        board.forEach((row, i) => {
-            row.forEach((cell, j) => {
-                const cellElement = document.querySelector(`.cell[data-row="${i}"][data-col="${j}"]`);
-                cellElement.innerHTML = ""; // Clear previous content
-                if (cell === 0) {
-                    // No disc in this cell
-                } else {
-                    const circleElement = document.createElement("div");
-                    circleElement.classList.add("circle");
-                    circleElement.classList.add(cell === 1 ? "circle-yellow" : "circle-red");
-                    cellElement.appendChild(circleElement);
-                }
-                cellElement.classList.remove("player1", "player2");
-                if (cell === 1) {
-                    cellElement.classList.add("player1");
-                } else if (cell === 2) {
-                    cellElement.classList.add("player2");
-                }
+        function showWinningCells(winningCells) {
+            winningCells.forEach(([row, col]) => {
+                const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+                cell.style.animation = 'winner 0.5s ease infinite';
             });
-        });
-    }
-
-    function toggleDarkMode() {
-        document.body.classList.toggle("dark-mode");
-        if (document.body.classList.contains("dark-mode")) {
-            document.body.style.backgroundColor = "#000";
-            document.querySelector('.copyright').style.color = '#fff';
-            document.querySelector('h1').style.color = '#fff';
-        } else {
-            document.body.style.backgroundColor = "#f0f0f0";
-            document.querySelector('.copyright').style.color = '#333';
-            document.querySelector('h1').style.color = '#333';
         }
-    }
-</script>
+
+        function checkDraw() {
+            return board.every(row => row.every(cell => cell !== 0));
+        }
+
+        function reset() {
+            board = [];
+            currentPlayer = 1;
+            boardElement.innerHTML = "";
+            initializeBoard();
+            updatePlayerTurn();
+            startTimer();
+        }
+
+        function startTimer() {
+            timeLeft = 30;
+            clearInterval(gameTimer);
+            gameTimer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft;
+                if(timeLeft <= 0) {
+                    currentPlayer = currentPlayer === 1 ? 2 : 1;
+                    updatePlayerTurn();
+                    startTimer();
+                }
+            }, 1000);
+        }
+
+        function render() {
+            board.forEach((row, i) => {
+                row.forEach((cell, j) => {
+                    const cellElement = document.querySelector(`.cell[data-row="${i}"][data-col="${j}"]`);
+                    cellElement.innerHTML = "";
+                    if (cell !== 0) {
+                        const circleElement = document.createElement("div");
+                        circleElement.classList.add("circle");
+                        circleElement.classList.add(cell === 1 ? "circle-yellow" : "circle-red");
+                        cellElement.appendChild(circleElement);
+                    }
+                });
+            });
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+            updateThemeColors();
+        }
+
+        function updateThemeColors() {
+            const isDarkMode = document.body.classList.contains("dark-mode");
+            document.body.style.background = isDarkMode ? 
+                'linear-gradient(135deg, #000000, #1a1a1a)' : 
+                'linear-gradient(135deg, #1a237e, #0d47a1)';
+        }
+
+        function addTouchSupport() {
+            let touchStartX = 0;
+            let currentCol = 3;
+            
+            boardElement.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+            });
+            
+            boardElement.addEventListener('touchmove', (e) => {
+                const diff = e.touches[0].clientX - touchStartX;
+                currentCol = Math.max(0, Math.min(COLS - 1, Math.floor(diff / 60) + 3));
+                highlightColumn(currentCol);
+            });
+            
+            boardElement.addEventListener('touchend', () => {
+                dropDisc(currentCol);
+            });
+        }
+
+        function highlightColumn(col) {
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.classList.remove('highlight');
+            });
+            for(let row = 0; row < ROWS; row++) {
+                const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+                if (cell) cell.classList.add('highlight');
+            }
+        }
+
+        // Initialize the game
+        initializeBoard();
+        updatePlayerTurn();
+        startTimer();
+        addTouchSupport();
+    </script>
 </body>
 </html>
